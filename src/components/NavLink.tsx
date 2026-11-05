@@ -10,7 +10,7 @@ function Pending() {
 // Shows a pulsing "…" the moment the link is clicked, until the next page is ready.
 export function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <Link href={href}>
+    <Link href={href} prefetch={false}>
       {children}
       <Pending />
     </Link>
