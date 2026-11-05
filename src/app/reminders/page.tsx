@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import { requireTuner } from "@/lib/tuner";
+import { getOrigin } from "@/lib/origin";
 import { CopyButton } from "@/components/CopyButton";
 import { draftMessage, isReminderDue, todayKST } from "@/lib/reminders";
 
@@ -10,12 +11,13 @@ export default async function RemindersPage() {
   const { supabase, userId } = await requireTuner();
   const today = todayKST();
   const [{ data: tuner }, { data: instruments }] = await Promise.all([
-    supabase.from("tuners").select("name").eq("id", userId).single(),
+    supabase.from("tuners").select("name, booking_slug").eq("id", userId).single(),
     supabase
       .from("instruments")
       .select("id, subtype, make_model, customers(id, name, contact_consent), services(visit_date, next_due_date, created_at), reminder_logs(sent_at)"),
   ]);
 
+  const bookingUrl = `${await getOrigin()}/book/${tuner?.booking_slug}`;
   const items = (instruments ?? [])
     .map((i) => {
       const services = [...(i.services as Svc[])].sort((a, b) => b.visit_date.localeCompare(a.visit_date));
@@ -43,7 +45,7 @@ export default async function RemindersPage() {
       {!items.length && <p className="text-gray-500">지금 안내할 고객이 없어요.</p>}
       {items.map(({ i, last, customer }) => {
         const name = `${i.subtype === "grand" ? "그랜드" : i.subtype === "upright" ? "업라이트" : "피아노"}${i.make_model ? ` (${i.make_model})` : ""}`;
-        const text = draftMessage({ tuner: tuner?.name ?? "", customer: customer!.name, instrument: name, lastVisit: last!.visit_date });
+        const text = draftMessage({ tuner: tuner?.name ?? "", customer: customer!.name, instrument: name, lastVisit: last!.visit_date, bookingUrl });
         return (
           <section key={i.id} className="mb-4 rounded border p-3">
             <div className="flex justify-between">
