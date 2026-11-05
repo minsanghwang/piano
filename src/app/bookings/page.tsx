@@ -30,11 +30,18 @@ export default async function BookingsPage() {
           <div className="font-semibold">{formatSlot(r.requested_at)}</div>
           <div>{r.name} · <a href={`tel:${r.phone}`} className="underline">{r.phone}</a></div>
           {r.address && <div className="text-sm text-gray-600">{r.address}</div>}
-          <form action={setStatus} className="mt-2 flex gap-2">
-            <input type="hidden" name="id" value={r.id} />
-            <button name="status" value="accepted" className="rounded bg-black px-3 py-1 text-sm text-white">수락</button>
-            <button name="status" value="declined" className="rounded border px-3 py-1 text-sm">거절</button>
-          </form>
+          <div className="mt-2 flex gap-2">
+            <form action={setStatus}>
+              <input type="hidden" name="id" value={r.id} />
+              <input type="hidden" name="status" value="accepted" />
+              <button className="rounded bg-black px-3 py-1 text-sm text-white">수락</button>
+            </form>
+            <form action={setStatus}>
+              <input type="hidden" name="id" value={r.id} />
+              <input type="hidden" name="status" value="declined" />
+              <button className="rounded border px-3 py-1 text-sm">거절</button>
+            </form>
+          </div>
         </section>
       ))}
       <p className="mt-4 text-sm text-gray-500">다른 시간을 제안하려면 거절한 뒤 전화/문자로 조율해 주세요.</p>

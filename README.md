@@ -21,4 +21,4 @@ Vercel에 저장소를 연결하고 환경변수 2개(`NEXT_PUBLIC_SUPABASE_URL`
 ## 테스트
 `npm test`: 로컬 인메모리 Postgres(PGlite)에서 마이그레이션을 실행하고, 조율사 간 데이터 격리를 검증합니다.
 
-`e2e/run.mjs`: 실제 Supabase와 브라우저(Playwright)로 전체 흐름을 검증하는 스크립트입니다(고객 30명 입력, 자동 권장일, 재방문 초안, 익명 예약, 수락, 일정). 로그인 가능한 테스트 계정이 필요하고(`E2E_EMAIL`, `E2E_PASSWORD`), `npm run build && npx next start -p 3100` 상태에서 실행합니다. **아직 한 번도 실행하지 못했습니다.**
+`e2e/run.mjs`: 실제 Supabase와 브라우저(Playwright)로 전체 흐름을 검증하는 스크립트입니다(고객 30명 입력, 자동 권장일, 재방문 초안, 익명 예약, 수락, 일정). 로그인 가능한 테스트 계정이 필요하고(`E2E_EMAIL`, `E2E_PASSWORD`), `npm run build && npx next start -p 3100` 상태에서 `node e2e/run.mjs`로 실행합니다. 이 계정은 이메일 링크 로그인 없이 비밀번호로 만든 임시 계정이어야 하며, 끝나면 삭제하세요. 2026-11-05에 통과했습니다. 샌드박스처럼 프록시를 거치는 환경에서는 Node에 `NODE_USE_ENV_PROXY=1`을 붙여야 `fetch`가 동작합니다. 실행할 때마다 테스트 계정의 기존 데이터를 먼저 지웁니다.
