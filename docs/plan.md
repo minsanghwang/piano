@@ -23,7 +23,7 @@
 - 보안: 조율사별 데이터 격리(DB 행 단위), 직접 만들지 않은 인증, 고객 링크는 추측 불가능한 토큰과 요청 제한
 
 ## 4. 기술
-Next.js(App Router) + Supabase(Auth, Postgres, RLS), Vercel 배포 예정. 선택 이유는 행 단위 격리와 로그인을 직접 구현하지 않고 해결할 수 있기 때문.
+Next.js(App Router) + Supabase(Auth, Postgres, RLS), Vercel 배포(서울 리전). 선택 이유는 행 단위 격리와 로그인을 직접 구현하지 않고 해결할 수 있기 때문.
 
 ## 5. 진행 상황과 점검 방법
 | 단계 | 내용 | 상태 | 확인 방법 |
