@@ -28,6 +28,13 @@ let stalls = 0;
 const submit = async (locator) => {
   await Promise.all([page.waitForResponse((r) => r.request().method() === "POST"), locator.click()]);
   await page.waitForLoadState("networkidle");
+  // Known intermittent stall: the save is done but the page keeps saying "처리 중...". A person would refresh.
+  await page
+    .waitForFunction(() => !document.querySelector("main button[disabled]"), null, { timeout: 12000 })
+    .catch(async () => {
+      stalls++;
+      await page.reload();
+    });
 };
 const ruleForm = 'form:has(select[name="weekday"]) button';
 const dayForm = 'form:has(input[name="day"]) button';
