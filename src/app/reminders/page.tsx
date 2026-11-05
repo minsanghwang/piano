@@ -5,6 +5,7 @@ import { ErrorBanner } from "@/components/ErrorBanner";
 import { requireTuner } from "@/lib/tuner";
 import { getOrigin } from "@/lib/origin";
 import { CopyButton } from "@/components/CopyButton";
+import { smsHref } from "@/lib/phone";
 import { draftMessage, isReminderDue, todayKST } from "@/lib/reminders";
 
 type Svc = { visit_date: string; next_due_date: string | null; created_at: string };
@@ -17,7 +18,7 @@ export default async function RemindersPage({ searchParams }: { searchParams: Pr
     supabase.from("tuners").select("name, booking_slug").eq("id", userId).single(),
     supabase
       .from("instruments")
-      .select("id, subtype, make_model, customers(id, name, contact_consent), services(visit_date, next_due_date, created_at), reminder_logs(sent_at)"),
+      .select("id, subtype, make_model, customers(id, name, phone, contact_consent), services(visit_date, next_due_date, created_at), reminder_logs(sent_at)"),
   ]);
 
   const bookingUrl = `${await getOrigin()}/book/${tuner?.booking_slug}`;
@@ -25,7 +26,7 @@ export default async function RemindersPage({ searchParams }: { searchParams: Pr
     .map((i) => {
       const services = [...(i.services as Svc[])].sort((a, b) => b.visit_date.localeCompare(a.visit_date));
       const last = services[0];
-      const customer = i.customers as unknown as { id: string; name: string; contact_consent: boolean } | null;
+      const customer = i.customers as unknown as { id: string; name: string; phone: string | null; contact_consent: boolean } | null;
       const logs = i.reminder_logs as { sent_at: string }[];
       // Already handled once the tuner has confirmed a reminder after the latest service was recorded.
       const handled = last && logs.some((l) => l.sent_at > last.created_at);
@@ -61,6 +62,7 @@ export default async function RemindersPage({ searchParams }: { searchParams: Pr
             <pre className="my-2 whitespace-pre-wrap rounded bg-gray-50 p-2 text-sm">{text}</pre>
             <div className="flex gap-2">
               <CopyButton text={text} />
+              {customer!.phone && <a href={smsHref(customer!.phone, text)} className="rounded border px-3 py-1 text-sm">문자 앱으로 열기</a>}
               <form action={markSent}>
                 <input type="hidden" name="instrument_id" value={i.id} />
                 <SubmitButton className="rounded bg-black px-3 py-1 text-sm text-white">보냈어요</SubmitButton>

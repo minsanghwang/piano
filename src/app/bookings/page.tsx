@@ -3,6 +3,7 @@ import { done, failIf } from "@/lib/actionResult";
 import { ErrorBanner } from "@/components/ErrorBanner";
 import { requireTuner } from "@/lib/tuner";
 import { formatSlot } from "@/lib/format";
+import { samePhone } from "@/lib/phone";
 
 export default async function BookingsPage({ searchParams }: { searchParams: Promise<{ error?: string; t?: string }> }) {
   const { error: errorCode, t: stamp } = await searchParams;
@@ -19,9 +20,24 @@ export default async function BookingsPage({ searchParams }: { searchParams: Pro
     const { supabase } = await requireTuner();
     const status = String(formData.get("status"));
     if (!["accepted", "declined"].includes(status)) return;
-    const { error } = await supabase.from("booking_requests").update({ status }).eq("id", String(formData.get("id")));
+    const id = String(formData.get("id"));
+    const { data: updated, error } = await supabase.from("booking_requests").update({ status }).eq("id", id).select("name, phone, address").single();
     failIf(error, "/bookings");
-    done("/bookings", ["/today"]);
+    if (status === "accepted" && updated) {
+      // Accepting a request also makes sure the customer has a record (matched by phone number).
+      const { data: existing, error: listError } = await supabase.from("customers").select("phone");
+      failIf(listError, "/bookings");
+      if (!existing?.some((c) => samePhone(c.phone, updated.phone))) {
+        const { error: insertError } = await supabase.from("customers").insert({
+          name: updated.name,
+          phone: updated.phone,
+          address: updated.address,
+          contact_consent: false, // booking is not consent to reminder messages
+        });
+        failIf(insertError, "/bookings");
+      }
+    }
+    done("/bookings", ["/today", "/"]);
   }
 
   return (

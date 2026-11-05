@@ -4,6 +4,8 @@ import { ErrorBanner } from "@/components/ErrorBanner";
 import { requireTuner } from "@/lib/tuner";
 import { formatDay, formatTime, kstDate, mapLinks } from "@/lib/format";
 import { todayKST } from "@/lib/reminders";
+import { samePhone } from "@/lib/phone";
+import Link from "next/link";
 
 export default async function TodayPage({ searchParams }: { searchParams: Promise<{ error?: string; t?: string }> }) {
   const { error: errorCode, t: stamp } = await searchParams;
@@ -14,6 +16,8 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
     .eq("status", "accepted")
     .gte("requested_at", new Date(Date.now() - 24 * 3600 * 1000).toISOString())
     .order("requested_at");
+  const { data: customers } = await supabase.from("customers").select("id, phone");
+  const customerOf = (phone: string) => customers?.find((c) => samePhone(c.phone, phone));
   const today = todayKST();
   const todays = (data ?? []).filter((r) => kstDate(r.requested_at) === today);
   const upcoming = (data ?? []).filter((r) => kstDate(r.requested_at) > today);
@@ -33,6 +37,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
       {!todays.length && <p className="mb-6 text-gray-500">오늘 방문 일정이 없어요.</p>}
       {todays.map((r, n) => {
         const maps = r.address ? mapLinks(r.address) : null;
+        const customer = customerOf(r.phone);
         return (
           <section key={r.id} className="mb-3 rounded border p-3">
             <div className="font-semibold">{n + 1}. {formatTime(r.requested_at)} · {r.name}</div>
@@ -41,6 +46,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
             <div className="mt-2 flex flex-wrap gap-2 text-sm">
               {maps && <a href={maps.kakao} target="_blank" rel="noreferrer" className="rounded border px-3 py-1">카카오맵</a>}
               {maps && <a href={maps.naver} target="_blank" rel="noreferrer" className="rounded border px-3 py-1">네이버지도</a>}
+              {customer && <Link href={`/customers/${customer.id}`} prefetch={false} className="rounded border px-3 py-1">고객 기록</Link>}
               <form action={done}>
                 <input type="hidden" name="id" value={r.id} />
                 <SubmitButton className="rounded bg-black px-3 py-1 text-white">방문 완료</SubmitButton>

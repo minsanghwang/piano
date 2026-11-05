@@ -3,11 +3,13 @@ import Link from "next/link";
 import { done, failIf } from "@/lib/actionResult";
 import { ErrorBanner } from "@/components/ErrorBanner";
 import { requireTuner } from "@/lib/tuner";
+import { matchesCustomer } from "@/lib/phone";
 
-export default async function Home({ searchParams }: { searchParams: Promise<{ error?: string; t?: string }> }) {
-  const { error: errorCode, t: stamp } = await searchParams;
+export default async function Home({ searchParams }: { searchParams: Promise<{ error?: string; t?: string; q?: string }> }) {
+  const { error: errorCode, t: stamp, q = "" } = await searchParams;
   const { supabase } = await requireTuner();
-  const { data: customers } = await supabase.from("customers").select("id, name, phone").order("name");
+  const { data: all } = await supabase.from("customers").select("id, name, phone").order("name");
+  const customers = all?.filter((c) => matchesCustomer(c, q));
 
   async function addCustomer(formData: FormData) {
     "use server";
@@ -26,6 +28,11 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
     <main className="mx-auto max-w-xl p-6">
       <h1 className="mb-4 text-xl font-bold">고객</h1>
       <ErrorBanner code={errorCode} stamp={stamp} />
+      <form action="/" method="get" className="mb-3 flex gap-2">
+        <input name="q" type="search" defaultValue={q} maxLength={50} placeholder="이름 또는 연락처로 검색" className="min-w-0 flex-1 rounded border p-2" />
+        <button type="submit" className="rounded border px-3">검색</button>
+        {q && <Link href="/" className="flex items-center px-1 text-sm underline">전체</Link>}
+      </form>
       <ul className="mb-8 divide-y rounded border">
         {customers?.map((c) => (
           <li key={c.id}>
@@ -35,7 +42,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
             </Link>
           </li>
         ))}
-        {!customers?.length && <li className="p-3 text-gray-500">아직 고객이 없어요.</li>}
+        {!customers?.length && <li className="p-3 text-gray-500">{q ? "검색 결과가 없어요." : "아직 고객이 없어요."}</li>}
       </ul>
       <form action={addCustomer} className="flex flex-col gap-2">
         <h2 className="font-semibold">고객 추가</h2>
