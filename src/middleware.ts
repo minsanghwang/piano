@@ -16,7 +16,10 @@ export async function middleware(request: NextRequest) {
   });
   const { data } = await supabase.auth.getUser();
   const { pathname } = request.nextUrl;
-  const isPublic = pathname === "/login" || pathname.startsWith("/auth/") || pathname.startsWith("/book/");
+  const isPublic = pathname === "/login" || pathname === "/signup" || pathname.startsWith("/auth/") || pathname.startsWith("/book/");
+  if (data.user && (pathname === "/login" || pathname === "/signup")) {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
   if (!data.user && !isPublic) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
