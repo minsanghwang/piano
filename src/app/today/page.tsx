@@ -1,10 +1,12 @@
 import { SubmitButton } from "@/components/SubmitButton";
-import { revalidatePath } from "next/cache";
+import { done as finish, failIf } from "@/lib/actionResult";
+import { ErrorBanner } from "@/components/ErrorBanner";
 import { requireTuner } from "@/lib/tuner";
 import { formatDay, formatTime, kstDate, mapLinks } from "@/lib/format";
 import { todayKST } from "@/lib/reminders";
 
-export default async function TodayPage() {
+export default async function TodayPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+  const { error: errorCode } = await searchParams;
   const { supabase } = await requireTuner();
   const { data } = await supabase
     .from("booking_requests")
@@ -19,13 +21,15 @@ export default async function TodayPage() {
   async function done(formData: FormData) {
     "use server";
     const { supabase } = await requireTuner();
-    await supabase.from("booking_requests").update({ status: "done" }).eq("id", String(formData.get("id")));
-    revalidatePath("/today");
+    const { error } = await supabase.from("booking_requests").update({ status: "done" }).eq("id", String(formData.get("id")));
+    failIf(error, "/today");
+    finish("/today");
   }
 
   return (
     <main className="mx-auto max-w-xl p-6">
       <h1 className="mb-4 text-xl font-bold">오늘 일정</h1>
+      <ErrorBanner code={errorCode} />
       {!todays.length && <p className="mb-6 text-gray-500">오늘 방문 일정이 없어요.</p>}
       {todays.map((r, n) => {
         const maps = r.address ? mapLinks(r.address) : null;

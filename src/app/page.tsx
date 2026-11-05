@@ -1,27 +1,31 @@
 import { SubmitButton } from "@/components/SubmitButton";
 import Link from "next/link";
-import { revalidatePath } from "next/cache";
+import { done, failIf } from "@/lib/actionResult";
+import { ErrorBanner } from "@/components/ErrorBanner";
 import { requireTuner } from "@/lib/tuner";
 
-export default async function Home() {
+export default async function Home({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+  const { error: errorCode } = await searchParams;
   const { supabase } = await requireTuner();
   const { data: customers } = await supabase.from("customers").select("id, name, phone").order("name");
 
   async function addCustomer(formData: FormData) {
     "use server";
     const { supabase } = await requireTuner();
-    await supabase.from("customers").insert({
+    const { error } = await supabase.from("customers").insert({
       name: String(formData.get("name") ?? "").trim(),
       phone: String(formData.get("phone") ?? "").trim() || null,
       address: String(formData.get("address") ?? "").trim() || null,
       contact_consent: formData.get("contact_consent") === "on",
     });
-    revalidatePath("/");
+    failIf(error, "/");
+    done("/");
   }
 
   return (
     <main className="mx-auto max-w-xl p-6">
       <h1 className="mb-4 text-xl font-bold">고객</h1>
+      <ErrorBanner code={errorCode} />
       <ul className="mb-8 divide-y rounded border">
         {customers?.map((c) => (
           <li key={c.id}>

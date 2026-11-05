@@ -1,14 +1,16 @@
 import { SubmitButton } from "@/components/SubmitButton";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
+import { done, failIf } from "@/lib/actionResult";
+import { ErrorBanner } from "@/components/ErrorBanner";
 import { requireTuner } from "@/lib/tuner";
 import { addMonths } from "@/lib/reminders";
 
 const WORK_TYPES = { tuning: "조율", regulation: "조정", voicing: "정음", repair: "수리" } as const;
 
-export default async function CustomerPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function CustomerPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ error?: string }> }) {
   const { id } = await params;
+  const { error: errorCode } = await searchParams;
   const { supabase } = await requireTuner();
   const [{ data: customer }, { data: instruments }] = await Promise.all([
     supabase.from("customers").select("*").eq("id", id).maybeSingle(),
@@ -24,13 +26,14 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
   async function addInstrument(formData: FormData) {
     "use server";
     const { supabase } = await requireTuner();
-    await supabase.from("instruments").insert({
+    const { error } = await supabase.from("instruments").insert({
       customer_id: id,
       subtype: String(formData.get("subtype") ?? "") || null,
       make_model: String(formData.get("make_model") ?? "").trim() || null,
       location: String(formData.get("location") ?? "").trim() || null,
     });
-    revalidatePath(`/customers/${id}`);
+    failIf(error, `/customers/${id}`);
+    done(`/customers/${id}`);
   }
 
   async function addService(formData: FormData) {
@@ -43,7 +46,7 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
       const { data: t } = await supabase.from("tuners").select("default_retune_months").single();
       nextDue = addMonths(visitDate, t?.default_retune_months ?? 12);
     }
-    await supabase.from("services").insert({
+    const { error } = await supabase.from("services").insert({
       instrument_id: String(formData.get("instrument_id")),
       visit_date: visitDate,
       work_type: String(formData.get("work_type")),
@@ -51,13 +54,15 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
       price: price ? Number(price) : null,
       next_due_date: nextDue,
     });
-    revalidatePath(`/customers/${id}`);
+    failIf(error, `/customers/${id}`);
+    done(`/customers/${id}`);
   }
 
   async function deleteCustomer() {
     "use server";
     const { supabase } = await requireTuner();
-    await supabase.from("customers").delete().eq("id", id); // instruments and services cascade
+    const { error } = await supabase.from("customers").delete().eq("id", id); // instruments and services cascade
+    failIf(error, `/customers/${id}`);
     redirect("/");
   }
 
@@ -65,6 +70,7 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
     <main className="mx-auto max-w-xl p-6">
       <Link href="/" className="text-sm text-gray-500">← 고객 목록</Link>
       <h1 className="mt-2 text-xl font-bold">{customer.name}</h1>
+      <ErrorBanner code={errorCode} />
       <p className="text-gray-600">{[customer.phone, customer.address].filter(Boolean).join(" · ")}</p>
       <p className="mb-6 text-sm text-gray-500">연락 동의: {customer.contact_consent ? "있음" : "없음"}</p>
 
