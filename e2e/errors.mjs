@@ -24,6 +24,7 @@ await ctx.addCookies([{
 const page = await ctx.newPage();
 const text = () => page.locator("main").innerText();
 const alert = () => page.locator('main [role="alert"]'); // not Next's own route announcer
+let stalls = 0;
 const submit = async (locator) => {
   await Promise.all([page.waitForResponse((r) => r.request().method() === "POST"), locator.click()]);
   await page.waitForLoadState("networkidle");
@@ -62,7 +63,7 @@ try {
   assert.match(await alert().innerText(), /이미 등록된 항목/);
   console.log("ok duplicate rest day shows an error");
 
-  console.log("ERRORS E2E PASSED");
+  console.log("ERRORS E2E PASSED", stalls ? `(page stalled and was refreshed ${stalls}x)` : "(no stalls)");
 } catch (e) {
   console.error("ERRORS E2E FAILED", e.message);
   console.error(page.url(), (await text().catch(() => "")).slice(0, 300));
