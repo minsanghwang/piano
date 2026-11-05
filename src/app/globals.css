@@ -39,3 +39,14 @@ button:focus-visible {
 button:disabled {
   cursor: progress;
 }
+
+/* Shown only while a save is pending, and only after 8 seconds (no JS timer needed). */
+.slow-notice {
+  visibility: hidden;
+  animation: slow-notice-reveal 0s 8s forwards;
+}
+@keyframes slow-notice-reveal {
+  to {
+    visibility: visible;
+  }
+}
