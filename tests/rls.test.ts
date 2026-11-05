@@ -1,5 +1,5 @@
 import { PGlite } from "@electric-sql/pglite";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { beforeAll, describe, expect, it } from "vitest";
 
 const A = "00000000-0000-0000-0000-00000000000a";
@@ -31,7 +31,9 @@ beforeAll(async () => {
     grant execute on function auth.uid() to authenticated;
     insert into auth.users values ('${A}'), ('${B}');
   `);
-  await db.exec(readFileSync("supabase/migrations/0001_init.sql", "utf8"));
+  for (const f of readdirSync("supabase/migrations").sort()) {
+    await db.exec(readFileSync(`supabase/migrations/${f}`, "utf8"));
+  }
   await db.exec("grant all on all tables in schema public to authenticated");
   await as(A, "insert into tuners (id, name) values ($1, 'A')", [A]);
   await as(B, "insert into tuners (id, name) values ($1, 'B')", [B]);
@@ -47,10 +49,11 @@ describe("row level security", () => {
       .id as string;
     await as(A, "insert into services (instrument_id, visit_date) values ($1, '2026-01-01')", [instrumentA]);
     expect(await as(A, "select * from services")).toHaveLength(1);
+    await as(A, "insert into reminder_logs (instrument_id) values ($1)", [instrumentA]);
   });
 
   it("tuner B sees nothing of A's data", async () => {
-    for (const t of ["customers", "instruments", "services"]) {
+    for (const t of ["customers", "instruments", "services", "reminder_logs"]) {
       expect(await as(B, `select * from ${t}`)).toHaveLength(0);
     }
   });
@@ -71,7 +74,7 @@ describe("row level security", () => {
 
   it("deleting a customer deletes its history", async () => {
     await as(A, "delete from customers where id = $1", [customerA]);
-    for (const t of ["instruments", "services"]) {
+    for (const t of ["instruments", "services", "reminder_logs"]) {
       expect(await as(A, `select * from ${t}`)).toHaveLength(0);
     }
   });

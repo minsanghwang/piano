@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireTuner } from "@/lib/tuner";
+import { addMonths } from "@/lib/reminders";
 
 const WORK_TYPES = { tuning: "조율", regulation: "조정", voicing: "정음", repair: "수리" } as const;
 
@@ -33,13 +34,19 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
     "use server";
     const { supabase } = await requireTuner();
     const price = String(formData.get("price") ?? "");
+    const visitDate = String(formData.get("visit_date"));
+    let nextDue = String(formData.get("next_due_date") ?? "");
+    if (!nextDue) {
+      const { data: t } = await supabase.from("tuners").select("default_retune_months").single();
+      nextDue = addMonths(visitDate, t?.default_retune_months ?? 12);
+    }
     await supabase.from("services").insert({
       instrument_id: String(formData.get("instrument_id")),
-      visit_date: String(formData.get("visit_date")),
+      visit_date: visitDate,
       work_type: String(formData.get("work_type")),
       work_done: String(formData.get("work_done") ?? "").trim() || null,
       price: price ? Number(price) : null,
-      next_due_date: String(formData.get("next_due_date") ?? "") || null,
+      next_due_date: nextDue,
     });
     revalidatePath(`/customers/${id}`);
   }
@@ -81,7 +88,7 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
             </select>
             <input name="price" type="number" min={0} placeholder="금액" className="w-24 rounded border p-1" />
             <input name="work_done" maxLength={2000} placeholder="작업 내용" className="flex-1 rounded border p-1" />
-            <label>다음 권장일 <input type="date" name="next_due_date" className="rounded border p-1" /></label>
+            <label>다음 권장일 (비우면 자동) <input type="date" name="next_due_date" className="rounded border p-1" /></label>
             <button className="rounded bg-black px-3 text-white">기록 추가</button>
           </form>
         </section>
