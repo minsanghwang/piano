@@ -26,6 +26,8 @@ const BASE = process.env.BASE ?? "http://localhost:3100";
   const submit = async (locator) => {
     await Promise.all([page.waitForResponse((r) => r.request().method() === "POST"), locator.click()]);
     await page.waitForLoadState("networkidle");
+    // Like a person, wait until the page has finished refreshing (no button still saying "처리 중...").
+    await page.waitForFunction(() => !document.querySelector("main button[disabled]"));
   };
   page.on("pageerror", (e) => console.log("PAGEERROR", e.message));
 

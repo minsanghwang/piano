@@ -54,7 +54,7 @@ export default async function RemindersPage({ searchParams }: { searchParams: Pr
         return (
           <section key={i.id} className="mb-4 rounded border p-3">
             <div className="flex justify-between">
-              <Link href={`/customers/${customer!.id}`} className="font-semibold">{customer!.name} · {name}</Link>
+              <Link href={`/customers/${customer!.id}`} prefetch={false} className="font-semibold">{customer!.name} · {name}</Link>
               <span className="text-sm text-gray-500">권장일 {last!.next_due_date}</span>
             </div>
             {!customer!.contact_consent && <p className="text-sm text-amber-700">연락 동의가 기록되지 않았어요. 보내기 전에 확인해 주세요.</p>}

@@ -115,7 +115,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       </form>
 
       <h2 className="mb-1 mt-10 font-semibold">계정</h2>
-      <p className="mb-6 text-sm"><Link href="/reset-password" className="underline">비밀번호 변경</Link></p>
+      <p className="mb-6 text-sm"><Link href="/reset-password" prefetch={false} className="underline">비밀번호 변경</Link></p>
 
       <section className="rounded border border-red-300 p-3">
         <h2 className="mb-1 font-semibold text-red-700">계정 삭제</h2>

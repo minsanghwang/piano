@@ -29,7 +29,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
       <ul className="mb-8 divide-y rounded border">
         {customers?.map((c) => (
           <li key={c.id}>
-            <Link href={`/customers/${c.id}`} className="flex justify-between p-3 hover:bg-gray-50">
+            <Link href={`/customers/${c.id}`} prefetch={false} className="flex justify-between p-3 hover:bg-gray-50">
               <span>{c.name}</span>
               <span className="text-gray-500">{c.phone}</span>
             </Link>
