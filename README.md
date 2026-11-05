@@ -16,6 +16,8 @@
 - `/book/<slug>` 고객용 예약 페이지 (로그인 없음)
 
 ## 배포
+운영 주소: https://piano-sang-e.vercel.app (`main`에 push하면 자동 배포)
+
 Vercel에 저장소를 연결하고 환경변수 2개(`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`)를 넣은 뒤, Supabase Auth의 Site URL과 Redirect URL(`https://<도메인>/auth/callback`)을 배포 주소로 바꿉니다.
 
 ## 테스트
