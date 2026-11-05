@@ -4,8 +4,8 @@ import { ErrorBanner } from "@/components/ErrorBanner";
 import { requireTuner } from "@/lib/tuner";
 import { formatSlot } from "@/lib/format";
 
-export default async function BookingsPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
-  const { error: errorCode } = await searchParams;
+export default async function BookingsPage({ searchParams }: { searchParams: Promise<{ error?: string; t?: string }> }) {
+  const { error: errorCode, t: stamp } = await searchParams;
   const { supabase } = await requireTuner();
   const { data: requests } = await supabase
     .from("booking_requests")
@@ -21,13 +21,13 @@ export default async function BookingsPage({ searchParams }: { searchParams: Pro
     if (!["accepted", "declined"].includes(status)) return;
     const { error } = await supabase.from("booking_requests").update({ status }).eq("id", String(formData.get("id")));
     failIf(error, "/bookings");
-    await done("/bookings", ["/today"]);
+    done("/bookings", ["/today"]);
   }
 
   return (
     <main className="mx-auto max-w-xl p-6">
       <h1 className="mb-4 text-xl font-bold">예약 요청</h1>
-      <ErrorBanner code={errorCode} />
+      <ErrorBanner code={errorCode} stamp={stamp} />
       {!requests?.length && <p className="text-gray-500">새 요청이 없어요.</p>}
       {requests?.map((r) => (
         <section key={r.id} className="mb-3 rounded border p-3">

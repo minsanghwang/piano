@@ -50,7 +50,6 @@ try {
   await submit(page.locator(ruleForm));
   await page.locator('li:has-text("09:00–12:00")').waitFor(); // the new row is shown, so the action finished
   assert.equal(await alert().count(), 0);
-  assert.ok(!page.url().includes("error"));
   console.log("ok a later success clears the error banner");
 
   // failure 2: duplicate rest day

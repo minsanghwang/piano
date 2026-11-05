@@ -5,8 +5,8 @@ import { requireTuner } from "@/lib/tuner";
 import { formatDay, formatTime, kstDate, mapLinks } from "@/lib/format";
 import { todayKST } from "@/lib/reminders";
 
-export default async function TodayPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
-  const { error: errorCode } = await searchParams;
+export default async function TodayPage({ searchParams }: { searchParams: Promise<{ error?: string; t?: string }> }) {
+  const { error: errorCode, t: stamp } = await searchParams;
   const { supabase } = await requireTuner();
   const { data } = await supabase
     .from("booking_requests")
@@ -23,13 +23,13 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
     const { supabase } = await requireTuner();
     const { error } = await supabase.from("booking_requests").update({ status: "done" }).eq("id", String(formData.get("id")));
     failIf(error, "/today");
-    await finish("/today");
+    finish("/today");
   }
 
   return (
     <main className="mx-auto max-w-xl p-6">
       <h1 className="mb-4 text-xl font-bold">오늘 일정</h1>
-      <ErrorBanner code={errorCode} />
+      <ErrorBanner code={errorCode} stamp={stamp} />
       {!todays.length && <p className="mb-6 text-gray-500">오늘 방문 일정이 없어요.</p>}
       {todays.map((r, n) => {
         const maps = r.address ? mapLinks(r.address) : null;

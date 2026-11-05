@@ -1,6 +1,8 @@
 import { SubmitButton } from "@/components/SubmitButton";
-import { done, failIf, ACTION_ERRORS } from "@/lib/actionResult";
+import { done, failIf } from "@/lib/actionResult";
+import { ACTION_ERRORS } from "@/lib/actionMessages";
 import Link from "next/link";
+import { ErrorBanner } from "@/components/ErrorBanner";
 import { requireTuner } from "@/lib/tuner";
 import { AUTH_ERRORS, AUTH_NOTICES } from "@/lib/authMessages";
 import { deleteAccount } from "@/app/account/actions";
@@ -8,8 +10,8 @@ import { getOrigin } from "@/lib/origin";
 
 const DAYS = ["일", "월", "화", "수", "목", "금", "토"];
 
-export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ notice?: string; error?: string }> }) {
-  const { notice, error } = await searchParams;
+export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ notice?: string; error?: string; t?: string }> }) {
+  const { notice, error, t: stamp } = await searchParams;
   const { supabase, userId } = await requireTuner();
 
   const [{ data: tuner }, { data: rules }, { data: exceptions }] = await Promise.all([
@@ -28,28 +30,28 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       end_time: String(formData.get("end")),
     });
     failIf(error, "/settings");
-    await done("/settings");
+    done("/settings");
   }
   async function removeRule(formData: FormData) {
     "use server";
     const { supabase } = await requireTuner();
     const { error } = await supabase.from("availability_rules").delete().eq("id", String(formData.get("id")));
     failIf(error, "/settings");
-    await done("/settings");
+    done("/settings");
   }
   async function addException(formData: FormData) {
     "use server";
     const { supabase } = await requireTuner();
     const { error } = await supabase.from("availability_exceptions").insert({ day: String(formData.get("day")) });
     failIf(error, "/settings");
-    await done("/settings");
+    done("/settings");
   }
   async function removeException(formData: FormData) {
     "use server";
     const { supabase } = await requireTuner();
     const { error } = await supabase.from("availability_exceptions").delete().eq("id", String(formData.get("id")));
     failIf(error, "/settings");
-    await done("/settings");
+    done("/settings");
   }
 
   async function save(formData: FormData) {
@@ -61,14 +63,14 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       .update({ name: String(formData.get("name") ?? "").trim().slice(0, 100), default_retune_months: months })
       .eq("id", userId);
     failIf(error, "/settings");
-    await done("/settings");
+    done("/settings");
   }
 
   return (
     <main className="mx-auto max-w-xl p-6">
       <h1 className="mb-4 text-xl font-bold">설정</h1>
       {notice && AUTH_NOTICES[notice] && <p role="status" className="mb-3 text-green-700">{AUTH_NOTICES[notice]}</p>}
-      {error && <p role="alert" className="mb-3 text-red-700">{AUTH_ERRORS[error] ?? ACTION_ERRORS[error] ?? ACTION_ERRORS.save}</p>}
+      {error && <ErrorBanner code={error} stamp={stamp} message={AUTH_ERRORS[error] ?? ACTION_ERRORS[error] ?? ACTION_ERRORS.save} />}
       <form action={save} className="flex flex-col gap-3">
         <label className="flex flex-col gap-1 text-sm">이름 (고객 메시지에 표시)
           <input name="name" defaultValue={tuner?.name ?? ""} maxLength={100} className="rounded border p-2" />

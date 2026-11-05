@@ -9,8 +9,8 @@ import { draftMessage, isReminderDue, todayKST } from "@/lib/reminders";
 
 type Svc = { visit_date: string; next_due_date: string | null; created_at: string };
 
-export default async function RemindersPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
-  const { error: errorCode } = await searchParams;
+export default async function RemindersPage({ searchParams }: { searchParams: Promise<{ error?: string; t?: string }> }) {
+  const { error: errorCode, t: stamp } = await searchParams;
   const { supabase, userId } = await requireTuner();
   const today = todayKST();
   const [{ data: tuner }, { data: instruments }] = await Promise.all([
@@ -39,13 +39,13 @@ export default async function RemindersPage({ searchParams }: { searchParams: Pr
     const { supabase } = await requireTuner();
     const { error } = await supabase.from("reminder_logs").insert({ instrument_id: String(formData.get("instrument_id")) });
     failIf(error, "/reminders");
-    await done("/reminders");
+    done("/reminders");
   }
 
   return (
     <main className="mx-auto max-w-xl p-6">
       <h1 className="mb-1 text-xl font-bold">재방문 안내</h1>
-      <ErrorBanner code={errorCode} />
+      <ErrorBanner code={errorCode} stamp={stamp} />
       <p className="mb-4 text-sm text-gray-500">다음 조율일이 4주 안으로 다가왔거나 지난 악기입니다. 메시지를 보낸 뒤 &quot;보냈어요&quot;를 눌러 주세요.</p>
       {!items.length && <p className="text-gray-500">지금 안내할 고객이 없어요.</p>}
       {items.map(({ i, last, customer }) => {

@@ -8,9 +8,9 @@ import { addMonths } from "@/lib/reminders";
 
 const WORK_TYPES = { tuning: "조율", regulation: "조정", voicing: "정음", repair: "수리" } as const;
 
-export default async function CustomerPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ error?: string }> }) {
+export default async function CustomerPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ error?: string; t?: string }> }) {
   const { id } = await params;
-  const { error: errorCode } = await searchParams;
+  const { error: errorCode, t: stamp } = await searchParams;
   const { supabase } = await requireTuner();
   const [{ data: customer }, { data: instruments }] = await Promise.all([
     supabase.from("customers").select("*").eq("id", id).maybeSingle(),
@@ -33,7 +33,7 @@ export default async function CustomerPage({ params, searchParams }: { params: P
       location: String(formData.get("location") ?? "").trim() || null,
     });
     failIf(error, `/customers/${id}`);
-    await done(`/customers/${id}`);
+    done(`/customers/${id}`);
   }
 
   async function addService(formData: FormData) {
@@ -55,7 +55,7 @@ export default async function CustomerPage({ params, searchParams }: { params: P
       next_due_date: nextDue,
     });
     failIf(error, `/customers/${id}`);
-    await done(`/customers/${id}`);
+    done(`/customers/${id}`);
   }
 
   async function deleteCustomer() {
@@ -70,7 +70,7 @@ export default async function CustomerPage({ params, searchParams }: { params: P
     <main className="mx-auto max-w-xl p-6">
       <Link href="/" className="text-sm text-gray-500">← 고객 목록</Link>
       <h1 className="mt-2 text-xl font-bold">{customer.name}</h1>
-      <ErrorBanner code={errorCode} />
+      <ErrorBanner code={errorCode} stamp={stamp} />
       <p className="text-gray-600">{[customer.phone, customer.address].filter(Boolean).join(" · ")}</p>
       <p className="mb-6 text-sm text-gray-500">연락 동의: {customer.contact_consent ? "있음" : "없음"}</p>
 

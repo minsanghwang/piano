@@ -4,8 +4,8 @@ import { done, failIf } from "@/lib/actionResult";
 import { ErrorBanner } from "@/components/ErrorBanner";
 import { requireTuner } from "@/lib/tuner";
 
-export default async function Home({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
-  const { error: errorCode } = await searchParams;
+export default async function Home({ searchParams }: { searchParams: Promise<{ error?: string; t?: string }> }) {
+  const { error: errorCode, t: stamp } = await searchParams;
   const { supabase } = await requireTuner();
   const { data: customers } = await supabase.from("customers").select("id, name, phone").order("name");
 
@@ -19,13 +19,13 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
       contact_consent: formData.get("contact_consent") === "on",
     });
     failIf(error, "/");
-    await done("/");
+    done("/");
   }
 
   return (
     <main className="mx-auto max-w-xl p-6">
       <h1 className="mb-4 text-xl font-bold">고객</h1>
-      <ErrorBanner code={errorCode} />
+      <ErrorBanner code={errorCode} stamp={stamp} />
       <ul className="mb-8 divide-y rounded border">
         {customers?.map((c) => (
           <li key={c.id}>
