@@ -10,14 +10,16 @@ const WORK_TYPES = { tuning: "조율", regulation: "조정", voicing: "정음", 
 export default async function CustomerPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const { supabase } = await requireTuner();
-  const { data: customer } = await supabase.from("customers").select("*").eq("id", id).maybeSingle();
+  const [{ data: customer }, { data: instruments }] = await Promise.all([
+    supabase.from("customers").select("*").eq("id", id).maybeSingle(),
+    supabase
+      .from("instruments")
+      .select("*, services(id, visit_date, work_type, work_done, price, next_due_date)")
+      .eq("customer_id", id)
+      .order("created_at")
+      .order("visit_date", { referencedTable: "services", ascending: false }),
+  ]);
   if (!customer) notFound();
-  const { data: instruments } = await supabase
-    .from("instruments")
-    .select("*, services(id, visit_date, work_type, work_done, price, next_due_date)")
-    .eq("customer_id", id)
-    .order("created_at")
-    .order("visit_date", { referencedTable: "services", ascending: false });
 
   async function addInstrument(formData: FormData) {
     "use server";

@@ -34,8 +34,6 @@ beforeAll(async () => {
     await db.exec(readFileSync(`supabase/migrations/${f}`, "utf8"));
   }
   await db.exec("grant all on all tables in schema public to authenticated");
-  await as("authenticated", A, "insert into tuners (id, name) values ($1, 'A')", [A]);
-  await as("authenticated", B, "insert into tuners (id, name) values ($1, 'B')", [B]);
   slug = (await as("authenticated", A, "select booking_slug from tuners"))[0].booking_slug as string;
   // Every day 09:00-13:00 => two 2-hour slots per day.
   for (let d = 0; d < 7; d++) {

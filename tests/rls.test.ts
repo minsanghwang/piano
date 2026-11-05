@@ -35,9 +35,15 @@ beforeAll(async () => {
     await db.exec(readFileSync(`supabase/migrations/${f}`, "utf8"));
   }
   await db.exec("grant all on all tables in schema public to authenticated");
-  await as(A, "insert into tuners (id, name) values ($1, 'A')", [A]);
-  await as(B, "insert into tuners (id, name) values ($1, 'B')", [B]);
 }, 60_000);
+
+describe("tuner profile", () => {
+  it("is created automatically when a user signs up", async () => {
+    const C = "00000000-0000-0000-0000-00000000000c";
+    await db.exec(`insert into auth.users values ('${C}')`);
+    expect(await as(C, "select id from tuners")).toHaveLength(1);
+  });
+});
 
 describe("row level security", () => {
   let customerA: string;

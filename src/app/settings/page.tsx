@@ -7,9 +7,9 @@ const DAYS = ["일", "월", "화", "수", "목", "금", "토"];
 
 export default async function SettingsPage() {
   const { supabase, userId } = await requireTuner();
-  const { data: tuner } = await supabase.from("tuners").select("name, default_retune_months, booking_slug").eq("id", userId).single();
 
-  const [{ data: rules }, { data: exceptions }] = await Promise.all([
+  const [{ data: tuner }, { data: rules }, { data: exceptions }] = await Promise.all([
+    supabase.from("tuners").select("name, default_retune_months, booking_slug").eq("id", userId).single(),
     supabase.from("availability_rules").select("*").order("weekday").order("start_time"),
     supabase.from("availability_exceptions").select("*").gte("day", new Date().toISOString().slice(0, 10)).order("day"),
   ]);
