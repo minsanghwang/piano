@@ -1,10 +1,10 @@
 // Browser E2E for login / logout / signup screens. Needs a password account (E2E_EMAIL / E2E_PASSWORD)
-// and the app running on localhost:3100. It never submits a signup for a new address (that would send mail).
+// and the app (BASE env, default http://localhost:3100). It never submits a signup for a new address (that would send mail).
 import { createRequire } from "node:module";
 import assert from "node:assert/strict";
 const { chromium } = createRequire(import.meta.url)("playwright");
 
-const BASE = "http://localhost:3100";
+const BASE = process.env.BASE ?? "http://localhost:3100";
 const { E2E_EMAIL, E2E_PASSWORD } = process.env;
 
 const browser = await chromium.launch();

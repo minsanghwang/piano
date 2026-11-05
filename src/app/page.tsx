@@ -19,7 +19,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
       contact_consent: formData.get("contact_consent") === "on",
     });
     failIf(error, "/");
-    done("/");
+    await done("/");
   }
 
   return (

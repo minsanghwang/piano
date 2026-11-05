@@ -1,4 +1,5 @@
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 export const ACTION_ERRORS: Record<string, string> = {
@@ -14,8 +15,13 @@ export function failIf(error: { code?: string } | null, path: string) {
   redirect(`${path}?error=${code}`);
 }
 
-/** After a successful change: refresh the data and drop any old error/notice from the URL. */
-export function done(path: string, alsoRevalidate: string[] = []) {
+/**
+ * After a successful change: refresh the data in place. Only when the page we came from still shows an
+ * old error/notice in its URL do we navigate to the clean URL (that navigation briefly blanks the page,
+ * so it is not done for ordinary saves).
+ */
+export async function done(path: string, alsoRevalidate: string[] = []) {
   for (const p of [path, ...alsoRevalidate]) revalidatePath(p);
-  redirect(path);
+  const referer = (await headers()).get("referer") ?? "";
+  if (/[?&](error|notice)=/.test(referer)) redirect(path);
 }

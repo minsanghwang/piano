@@ -5,7 +5,7 @@ import { createRequire } from "node:module";
 import assert from "node:assert/strict";
 const { chromium } = createRequire(import.meta.url)("playwright");
 
-const BASE = "http://localhost:3100";
+const BASE = process.env.BASE ?? "http://localhost:3100";
 const { E2E_KEEPER, E2E_DELETEE, E2E_PASSWORD } = process.env;
 const NEW_PASSWORD = "Changed-pass-9-xyz";
 

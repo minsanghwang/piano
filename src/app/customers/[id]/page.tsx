@@ -33,7 +33,7 @@ export default async function CustomerPage({ params, searchParams }: { params: P
       location: String(formData.get("location") ?? "").trim() || null,
     });
     failIf(error, `/customers/${id}`);
-    done(`/customers/${id}`);
+    await done(`/customers/${id}`);
   }
 
   async function addService(formData: FormData) {
@@ -55,7 +55,7 @@ export default async function CustomerPage({ params, searchParams }: { params: P
       next_due_date: nextDue,
     });
     failIf(error, `/customers/${id}`);
-    done(`/customers/${id}`);
+    await done(`/customers/${id}`);
   }
 
   async function deleteCustomer() {

@@ -7,7 +7,7 @@ const req = createRequire(import.meta.url);
 const { chromium } = req("playwright");
 const { createClient } = req("@supabase/supabase-js");
 
-const BASE = "http://localhost:3100";
+const BASE = process.env.BASE ?? "http://localhost:3100";
 const URL_ = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const sb = createClient(URL_, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 const { data, error } = await sb.auth.signInWithPassword({ email: process.env.E2E_EMAIL, password: process.env.E2E_PASSWORD });

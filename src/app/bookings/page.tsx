@@ -21,7 +21,7 @@ export default async function BookingsPage({ searchParams }: { searchParams: Pro
     if (!["accepted", "declined"].includes(status)) return;
     const { error } = await supabase.from("booking_requests").update({ status }).eq("id", String(formData.get("id")));
     failIf(error, "/bookings");
-    done("/bookings", ["/today"]);
+    await done("/bookings", ["/today"]);
   }
 
   return (

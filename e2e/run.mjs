@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 
 const URL_ = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const BASE = "http://localhost:3100";
+const BASE = process.env.BASE ?? "http://localhost:3100";
 
 (async () => {
   const sb = createClient(URL_, KEY);

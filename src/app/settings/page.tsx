@@ -28,28 +28,28 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       end_time: String(formData.get("end")),
     });
     failIf(error, "/settings");
-    done("/settings");
+    await done("/settings");
   }
   async function removeRule(formData: FormData) {
     "use server";
     const { supabase } = await requireTuner();
     const { error } = await supabase.from("availability_rules").delete().eq("id", String(formData.get("id")));
     failIf(error, "/settings");
-    done("/settings");
+    await done("/settings");
   }
   async function addException(formData: FormData) {
     "use server";
     const { supabase } = await requireTuner();
     const { error } = await supabase.from("availability_exceptions").insert({ day: String(formData.get("day")) });
     failIf(error, "/settings");
-    done("/settings");
+    await done("/settings");
   }
   async function removeException(formData: FormData) {
     "use server";
     const { supabase } = await requireTuner();
     const { error } = await supabase.from("availability_exceptions").delete().eq("id", String(formData.get("id")));
     failIf(error, "/settings");
-    done("/settings");
+    await done("/settings");
   }
 
   async function save(formData: FormData) {
@@ -61,7 +61,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       .update({ name: String(formData.get("name") ?? "").trim().slice(0, 100), default_retune_months: months })
       .eq("id", userId);
     failIf(error, "/settings");
-    done("/settings");
+    await done("/settings");
   }
 
   return (

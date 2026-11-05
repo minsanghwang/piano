@@ -23,7 +23,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
     const { supabase } = await requireTuner();
     const { error } = await supabase.from("booking_requests").update({ status: "done" }).eq("id", String(formData.get("id")));
     failIf(error, "/today");
-    finish("/today");
+    await finish("/today");
   }
 
   return (

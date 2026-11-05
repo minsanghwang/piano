@@ -39,7 +39,7 @@ export default async function RemindersPage({ searchParams }: { searchParams: Pr
     const { supabase } = await requireTuner();
     const { error } = await supabase.from("reminder_logs").insert({ instrument_id: String(formData.get("instrument_id")) });
     failIf(error, "/reminders");
-    done("/reminders");
+    await done("/reminders");
   }
 
   return (
