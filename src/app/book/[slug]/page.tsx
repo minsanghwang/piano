@@ -1,3 +1,4 @@
+import { SubmitButton } from "@/components/SubmitButton";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { formatDay, formatTime, kstDate } from "@/lib/format";
@@ -50,7 +51,7 @@ export default async function BookPage({ params, searchParams }: { params: Promi
           <input name="name" required maxLength={100} placeholder="이름" className="rounded border p-2" />
           <input name="phone" type="tel" required minLength={5} maxLength={30} placeholder="연락처" className="rounded border p-2" />
           <input name="address" maxLength={300} placeholder="방문 주소" className="rounded border p-2" />
-          <button className="rounded bg-black p-3 text-white">예약 요청</button>
+          <SubmitButton className="rounded bg-black p-3 text-white">예약 요청</SubmitButton>
         </form>
       )}
     </main>

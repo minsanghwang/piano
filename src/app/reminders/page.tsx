@@ -1,3 +1,4 @@
+import { SubmitButton } from "@/components/SubmitButton";
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import { requireTuner } from "@/lib/tuner";
@@ -58,7 +59,7 @@ export default async function RemindersPage() {
               <CopyButton text={text} />
               <form action={markSent}>
                 <input type="hidden" name="instrument_id" value={i.id} />
-                <button className="rounded bg-black px-3 py-1 text-sm text-white">보냈어요</button>
+                <SubmitButton className="rounded bg-black px-3 py-1 text-sm text-white">보냈어요</SubmitButton>
               </form>
             </div>
           </section>

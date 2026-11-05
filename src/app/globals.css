@@ -1,6 +1,8 @@
 @import "tailwindcss";
 
+/* Light theme only: every screen is styled for a white background. */
 :root {
+  color-scheme: light;
   --background: #ffffff;
   --foreground: #171717;
 }
@@ -12,15 +14,28 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Visible feedback for every button: hover, pressed, keyboard focus, disabled. */
+button {
+  cursor: pointer;
+  transition: transform 80ms ease, opacity 80ms ease;
+}
+button:hover:not(:disabled) {
+  opacity: 0.85;
+}
+button:active:not(:disabled) {
+  transform: scale(0.96);
+  opacity: 0.6;
+}
+button:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+button:disabled {
+  cursor: progress;
 }

@@ -1,3 +1,4 @@
+import { SubmitButton } from "@/components/SubmitButton";
 import { revalidatePath } from "next/cache";
 import { requireTuner } from "@/lib/tuner";
 import { formatSlot } from "@/lib/format";
@@ -34,12 +35,12 @@ export default async function BookingsPage() {
             <form action={setStatus}>
               <input type="hidden" name="id" value={r.id} />
               <input type="hidden" name="status" value="accepted" />
-              <button className="rounded bg-black px-3 py-1 text-sm text-white">수락</button>
+              <SubmitButton className="rounded bg-black px-3 py-1 text-sm text-white">수락</SubmitButton>
             </form>
             <form action={setStatus}>
               <input type="hidden" name="id" value={r.id} />
               <input type="hidden" name="status" value="declined" />
-              <button className="rounded border px-3 py-1 text-sm">거절</button>
+              <SubmitButton className="rounded border px-3 py-1 text-sm">거절</SubmitButton>
             </form>
           </div>
         </section>

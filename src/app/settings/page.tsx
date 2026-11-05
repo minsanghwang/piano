@@ -1,3 +1,4 @@
+import { SubmitButton } from "@/components/SubmitButton";
 import { revalidatePath } from "next/cache";
 import { requireTuner } from "@/lib/tuner";
 import { getOrigin } from "@/lib/origin";
@@ -64,7 +65,7 @@ export default async function SettingsPage() {
         <label className="flex flex-col gap-1 text-sm">기본 재조율 주기 (개월)
           <input name="months" type="number" min={1} max={60} defaultValue={tuner?.default_retune_months ?? 12} className="rounded border p-2" />
         </label>
-        <button className="rounded bg-black p-2 text-white">저장</button>
+        <SubmitButton className="rounded bg-black p-2 text-white">저장</SubmitButton>
       </form>
 
       <h2 className="mb-1 mt-8 font-semibold">예약 링크</h2>
@@ -76,7 +77,7 @@ export default async function SettingsPage() {
         {rules?.map((r) => (
           <li key={r.id} className="flex justify-between border-b py-1">
             <span>{DAYS[r.weekday]}요일 {r.start_time.slice(0, 5)}–{r.end_time.slice(0, 5)}</span>
-            <form action={removeRule}><input type="hidden" name="id" value={r.id} /><button className="text-red-700">삭제</button></form>
+            <form action={removeRule}><input type="hidden" name="id" value={r.id} /><SubmitButton className="text-red-700">삭제</SubmitButton></form>
           </li>
         ))}
         {!rules?.length && <li className="text-gray-500">설정된 시간이 없어요. 예약 링크가 비어 보입니다.</li>}
@@ -85,7 +86,7 @@ export default async function SettingsPage() {
         <select name="weekday" className="rounded border p-1">{DAYS.map((d, i) => <option key={d} value={i}>{d}요일</option>)}</select>
         <input type="time" name="start" defaultValue="09:00" required className="rounded border p-1" />
         <input type="time" name="end" defaultValue="18:00" required className="rounded border p-1" />
-        <button className="rounded bg-black px-3 text-white">추가</button>
+        <SubmitButton className="rounded bg-black px-3 text-white">추가</SubmitButton>
       </form>
 
       <h2 className="mb-1 font-semibold">쉬는 날</h2>
@@ -93,13 +94,13 @@ export default async function SettingsPage() {
         {exceptions?.map((e) => (
           <li key={e.id} className="flex justify-between border-b py-1">
             <span>{e.day}</span>
-            <form action={removeException}><input type="hidden" name="id" value={e.id} /><button className="text-red-700">삭제</button></form>
+            <form action={removeException}><input type="hidden" name="id" value={e.id} /><SubmitButton className="text-red-700">삭제</SubmitButton></form>
           </li>
         ))}
       </ul>
       <form action={addException} className="flex gap-2 text-sm">
         <input type="date" name="day" required className="rounded border p-1" />
-        <button className="rounded bg-black px-3 text-white">추가</button>
+        <SubmitButton className="rounded bg-black px-3 text-white">추가</SubmitButton>
       </form>
     </main>
   );

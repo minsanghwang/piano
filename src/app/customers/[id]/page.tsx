@@ -1,3 +1,4 @@
+import { SubmitButton } from "@/components/SubmitButton";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
@@ -89,7 +90,7 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
             <input name="price" type="number" min={0} placeholder="금액" className="w-24 rounded border p-1" />
             <input name="work_done" maxLength={2000} placeholder="작업 내용" className="flex-1 rounded border p-1" />
             <label>다음 권장일 (비우면 자동) <input type="date" name="next_due_date" className="rounded border p-1" /></label>
-            <button className="rounded bg-black px-3 text-white">기록 추가</button>
+            <SubmitButton className="rounded bg-black px-3 text-white">기록 추가</SubmitButton>
           </form>
         </section>
       ))}
@@ -101,11 +102,11 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
         </select>
         <input name="make_model" maxLength={100} placeholder="제조사/모델" className="rounded border p-1" />
         <input name="location" maxLength={200} placeholder="설치 장소" className="rounded border p-1" />
-        <button className="rounded bg-black px-3 text-white">악기 추가</button>
+        <SubmitButton className="rounded bg-black px-3 text-white">악기 추가</SubmitButton>
       </form>
 
       <form action={deleteCustomer}>
-        <button className="text-sm text-red-700 underline">고객과 모든 기록 삭제</button>
+        <SubmitButton className="text-sm text-red-700 underline">고객과 모든 기록 삭제</SubmitButton>
       </form>
     </main>
   );

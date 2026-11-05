@@ -1,3 +1,4 @@
+import { SubmitButton } from "@/components/SubmitButton";
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import { requireTuner } from "@/lib/tuner";
@@ -40,7 +41,7 @@ export default async function Home() {
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" name="contact_consent" /> 연락(재방문 안내) 수신 동의 받음
         </label>
-        <button className="rounded bg-black p-2 text-white">추가</button>
+        <SubmitButton className="rounded bg-black p-2 text-white">추가</SubmitButton>
       </form>
     </main>
   );

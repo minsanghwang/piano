@@ -1,3 +1,4 @@
+import { SubmitButton } from "@/components/SubmitButton";
 import { revalidatePath } from "next/cache";
 import { requireTuner } from "@/lib/tuner";
 import { formatDay, formatTime, kstDate, mapLinks } from "@/lib/format";
@@ -38,7 +39,7 @@ export default async function TodayPage() {
               {maps && <a href={maps.naver} target="_blank" rel="noreferrer" className="rounded border px-3 py-1">네이버지도</a>}
               <form action={done}>
                 <input type="hidden" name="id" value={r.id} />
-                <button className="rounded bg-black px-3 py-1 text-white">방문 완료</button>
+                <SubmitButton className="rounded bg-black px-3 py-1 text-white">방문 완료</SubmitButton>
               </form>
             </div>
           </section>
