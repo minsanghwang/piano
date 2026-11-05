@@ -50,3 +50,28 @@ button:disabled {
     visibility: visible;
   }
 }
+
+/* Phone use: 16px fields stop iOS from zooming on focus; buttons and fields get a comfortable tap size. */
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea {
+  font-size: 16px;
+  min-height: 44px;
+}
+button {
+  min-height: 40px;
+}
+
+/* Tap targets for links and fold-out headings (menu, text links, "수정/삭제" etc.). */
+nav a {
+  display: inline-block;
+  padding: 12px 6px;
+}
+summary {
+  padding-block: 10px;
+}
+a.underline,
+main > a:first-child {
+  display: inline-block;
+  padding-block: 8px;
+}
