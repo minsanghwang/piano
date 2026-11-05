@@ -65,3 +65,15 @@ export async function signOut() {
   await supabase.auth.signOut();
   redirect("/login?sent=signout");
 }
+
+export async function requestPasswordReset(formData: FormData) {
+  const email = field(formData, "email").trim();
+  if (!EMAIL.test(email)) redirect("/forgot-password?error=email");
+  const supabase = await createClient();
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${await origin()}/auth/callback`,
+  });
+  if (error?.code === "over_email_send_rate_limit") redirect("/forgot-password?error=wait");
+  // Same answer whether or not the address has an account, so the form can't be used to look people up.
+  redirect("/forgot-password?sent=1");
+}

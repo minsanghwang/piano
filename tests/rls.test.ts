@@ -45,6 +45,46 @@ describe("tuner profile", () => {
   });
 });
 
+describe("account deletion", () => {
+  const D = "00000000-0000-0000-0000-00000000000d";
+
+  it("removes the user and everything they own, and nothing else", async () => {
+    await db.exec(`insert into auth.users values ('${D}')`);
+    const c = (await as(D, "insert into customers (name) values ('Del') returning id"))[0].id as string;
+    const i = (await as(D, "insert into instruments (customer_id) values ($1) returning id", [c]))[0].id as string;
+    await as(D, "insert into services (instrument_id, visit_date) values ($1, '2026-01-01')", [i]);
+    await as(D, "insert into reminder_logs (instrument_id) values ($1)", [i]);
+    await as(D, "insert into availability_rules (weekday, start_time, end_time) values (1,'09:00','12:00')");
+    await db.exec(
+      `insert into booking_requests (tuner_id, name, phone, requested_at) values ('${D}','x','12345', now() + interval '1 day')`,
+    );
+    const before = (await db.query<Row>("select count(*)::int n from customers")).rows[0].n as number;
+
+    await as(D, "select delete_my_account()");
+
+    for (const t of ["customers", "instruments", "services", "reminder_logs", "availability_rules", "booking_requests"]) {
+      const n = (await db.query<Row>(`select count(*)::int n from ${t} where tuner_id = '${D}'`)).rows[0].n;
+      expect(n, t).toBe(0);
+    }
+    expect((await db.query<Row>(`select count(*)::int n from auth.users where id = '${D}'`)).rows[0].n).toBe(0);
+    expect((await db.query<Row>(`select count(*)::int n from tuners where id = '${D}'`)).rows[0].n).toBe(0);
+    // other tuners are untouched
+    expect((await db.query<Row>("select count(*)::int n from tuners")).rows[0].n as number).toBeGreaterThanOrEqual(2);
+    expect((await db.query<Row>("select count(*)::int n from customers")).rows[0].n as number).toBe(before - 1);
+  });
+
+  it("can only be called by a signed-in user", async () => {
+    await db.exec("set role anon");
+    try {
+      await expect(db.query("select delete_my_account()")).rejects.toThrow();
+    } finally {
+      await db.exec("reset role");
+    }
+    // authenticated role without a user id (no JWT subject) is refused too
+    await expect(as("", "select delete_my_account()")).rejects.toThrow();
+  });
+});
+
 describe("row level security", () => {
   let customerA: string;
   let instrumentA: string;

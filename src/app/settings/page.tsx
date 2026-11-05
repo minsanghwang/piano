@@ -1,11 +1,15 @@
 import { SubmitButton } from "@/components/SubmitButton";
 import { revalidatePath } from "next/cache";
+import Link from "next/link";
 import { requireTuner } from "@/lib/tuner";
+import { AUTH_ERRORS, AUTH_NOTICES } from "@/lib/authMessages";
+import { deleteAccount } from "@/app/account/actions";
 import { getOrigin } from "@/lib/origin";
 
 const DAYS = ["일", "월", "화", "수", "목", "금", "토"];
 
-export default async function SettingsPage() {
+export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ notice?: string; error?: string }> }) {
+  const { notice, error } = await searchParams;
   const { supabase, userId } = await requireTuner();
 
   const [{ data: tuner }, { data: rules }, { data: exceptions }] = await Promise.all([
@@ -58,6 +62,8 @@ export default async function SettingsPage() {
   return (
     <main className="mx-auto max-w-xl p-6">
       <h1 className="mb-4 text-xl font-bold">설정</h1>
+      {notice && AUTH_NOTICES[notice] && <p role="status" className="mb-3 text-green-700">{AUTH_NOTICES[notice]}</p>}
+      {error && <p role="alert" className="mb-3 text-red-700">{AUTH_ERRORS[error] ?? AUTH_ERRORS.delete}</p>}
       <form action={save} className="flex flex-col gap-3">
         <label className="flex flex-col gap-1 text-sm">이름 (고객 메시지에 표시)
           <input name="name" defaultValue={tuner?.name ?? ""} maxLength={100} className="rounded border p-2" />
@@ -102,6 +108,21 @@ export default async function SettingsPage() {
         <input type="date" name="day" required className="rounded border p-1" />
         <SubmitButton className="rounded bg-black px-3 text-white">추가</SubmitButton>
       </form>
+
+      <h2 className="mb-1 mt-10 font-semibold">계정</h2>
+      <p className="mb-6 text-sm"><Link href="/reset-password" className="underline">비밀번호 변경</Link></p>
+
+      <section className="rounded border border-red-300 p-3">
+        <h2 className="mb-1 font-semibold text-red-700">계정 삭제</h2>
+        <p className="mb-2 text-sm text-gray-600">
+          계정과 함께 고객, 악기, 시술 기록, 예약 요청(예약한 고객의 이름·연락처 포함), 가능 시간이 <b>모두 영구 삭제</b>되고 되돌릴 수 없어요.
+          예약 링크도 더 이상 동작하지 않습니다.
+        </p>
+        <form action={deleteAccount} className="flex flex-wrap gap-2 text-sm">
+          <input name="confirm" required autoComplete="off" placeholder='확인을 위해 "삭제" 입력' className="rounded border p-1" />
+          <SubmitButton className="rounded bg-red-700 px-3 py-1 text-white">계정 삭제</SubmitButton>
+        </form>
+      </section>
     </main>
   );
 }

@@ -15,7 +15,8 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         <input name="password" type="password" required autoComplete="current-password" placeholder="비밀번호" className="rounded border p-2" />
         <SubmitButton className="rounded bg-black p-2 text-white">로그인</SubmitButton>
       </form>
-      <p className="mt-4 text-sm">
+      <p className="mt-3 text-sm"><Link href="/forgot-password" className="underline">비밀번호를 잊으셨나요?</Link></p>
+      <p className="mt-2 text-sm">
         계정이 없나요? <Link href="/signup" className="underline">회원가입</Link>
       </p>
       <details className="mt-6 text-sm">
